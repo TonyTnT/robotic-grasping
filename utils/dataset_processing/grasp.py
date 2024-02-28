@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from skimage.draw import polygon
 from skimage.feature import peak_local_max
-
+import torch
 
 def _gr_text_to_no(l, offset=(0, 0)):
     """
@@ -181,7 +181,7 @@ class GraspRectangles:
         if pad_to:
             if pad_to > len(self.grs):
                 a = np.concatenate((a, np.zeros((pad_to - len(self.grs), 4, 2))))
-        return a.astype(np.int)
+        return a.astype(np.int_)
 
     @property
     def center(self):
@@ -190,7 +190,7 @@ class GraspRectangles:
         :return: float, mean centre of all GraspRectangles
         """
         points = [gr.points for gr in self.grs]
-        return np.mean(np.vstack(points), axis=0).astype(np.int)
+        return np.mean(np.vstack(points), axis=0).astype(np.int_)
 
 
 class GraspRectangle:
@@ -225,7 +225,7 @@ class GraspRectangle:
         """
         :return: Rectangle center point
         """
-        return self.points.mean(axis=0).astype(np.int)
+        return self.points.mean(axis=0).astype(np.int_)
 
     @property
     def length(self):
@@ -306,14 +306,15 @@ class GraspRectangle:
         :param angle: Angle to rotate (in radians)
         :param center: Point to rotate around (e.g. image center)
         """
-        R = np.array(
-            [
-                [np.cos(-angle), np.sin(-angle)],
-                [-1 * np.sin(-angle), np.cos(-angle)],
-            ]
-        )
+        if type(angle) == torch.Tensor:
+            angle = angle.item()
+        try:
+            R = np.array([[np.cos(-angle), np.sin(-angle)], [-1 * np.sin(-angle), np.cos(-angle)]])
+        except:
+            print(center,angle, type(angle),[np.cos(-angle), np.sin(-angle)],[-1 * np.sin(-angle), np.cos(-angle)])
+
         c = np.array(center).reshape((1, 2))
-        self.points = ((np.dot(R, (self.points - c).T)).T + c).astype(np.int)
+        self.points = ((np.dot(R, (self.points - c).T)).T + c).astype(np.int_)
 
     def scale(self, factor):
         """
@@ -338,14 +339,20 @@ class GraspRectangle:
         :param factor: Zoom factor
         :param center: Zoom zenter (focus point, e.g. image center)
         """
-        T = np.array(
-            [
-                [1 / factor, 0],
-                [0, 1 / factor]
-            ]
-        )
+        
+        if type(factor) == torch.Tensor:
+            factor = factor.item()
+        try:
+            T = np.array(
+                [
+                    [1 / factor, 0],
+                    [0, 1 / factor]
+                ]
+            )
+        except:
+            print(factor, type(factor))
         c = np.array(center).reshape((1, 2))
-        self.points = ((np.dot(T, (self.points - c).T)).T + c).astype(np.int)
+        self.points = ((np.dot(T, (self.points - c).T)).T + c).astype(np.int_)
 
 
 class Grasp:
@@ -380,7 +387,7 @@ class Grasp:
                 [y2 + self.width / 2 * xo, x2 + self.width / 2 * yo],
                 [y1 + self.width / 2 * xo, x1 + self.width / 2 * yo],
             ]
-        ).astype(np.float))
+        ).astype(np.float_))
 
     def max_iou(self, grs):
         """
