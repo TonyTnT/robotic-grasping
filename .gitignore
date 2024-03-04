@@ -112,3 +112,5 @@ saved_data/
 
 dataset/*
 logs/*
+cornell_grasp.zip
+*.pdf

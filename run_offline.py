@@ -10,23 +10,24 @@ from hardware.device import get_device
 from inference.post_process import post_process_output
 from utils.data.camera_data import CameraData
 from utils.visualisation.plot import plot_results, save_results
+from utils.dataset_processing.grasp import detect_grasps
 
 logging.basicConfig(level=logging.INFO)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Evaluate network')
-    parser.add_argument('--network', type=str,
+    parser.add_argument('--network', type=str, default='trained-models/cornell-randsplit-rgbd-grconvnet3-drop1-ch32/epoch_19_iou_0.98',
                         help='Path to saved network to evaluate')
-    parser.add_argument('--rgb_path', type=str, default='cornell/08/pcd0845r.png',
+    parser.add_argument('--rgb_path', type=str, default='dataset/08/pcd0845r.png',
                         help='RGB Image path')
-    parser.add_argument('--depth_path', type=str, default='cornell/08/pcd0845d.tiff',
+    parser.add_argument('--depth_path', type=str, default='dataset/08/pcd0845d.tiff',
                         help='Depth Image path')
     parser.add_argument('--use-depth', type=int, default=1,
                         help='Use Depth image for evaluation (1/0)')
     parser.add_argument('--use-rgb', type=int, default=1,
                         help='Use RGB image for evaluation (1/0)')
-    parser.add_argument('--n-grasps', type=int, default=1,
+    parser.add_argument('--n-grasps', type=int, default=2,
                         help='Number of grasps to consider per image')
     parser.add_argument('--save', type=int, default=0,
                         help='Save the results')
@@ -82,4 +83,8 @@ if __name__ == '__main__':
                          grasp_angle_img=ang_img,
                          no_grasps=args.n_grasps,
                          grasp_width_img=width_img)
+                         
+            gs = detect_grasps(q_img, ang_img, width_img=width_img, no_grasps=args.n_grasps)
+            for g in gs:
+                print(type(g),g)
             fig.savefig('img_result.pdf')

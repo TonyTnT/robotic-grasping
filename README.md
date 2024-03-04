@@ -97,6 +97,8 @@ The trained network can be evaluated using the `evaluate.py` script.  Run `evalu
 
 Example for Cornell dataset:
 
+Weights training on Cornell https://pan.baidu.com/s/1bie7XJF_c6mWfktwZgExcQ   eh9y
+(train on 2080ti)
 ```bash
 python evaluate.py --network <Path to Trained Network> --dataset cornell --dataset-path <Path to Dataset> --iou-eval
 ```
@@ -112,6 +114,21 @@ A task can be executed using the relevant run script. All task scripts are named
 ```bash
 python run_grasp_generator.py
 ```
+
+Realtime test with Realsense D435i, distance about 1m.
+```bash
+python run_realtime.py
+```
+![image](assets/Screencast%20from%202024-02-29%2016-40-57.gif)
+
+Realtime test with Realsense D405, distance about 1m.
+![image](assets/Screencast%20from%202024-02-29%2017-03-15.gif)
+
+
+## TODO
+- [ ] 调整 infer的crop 
+  现在是直接中心裁剪224  对于1280x720 损失太多 导致 object 占据画面比重太大 
+- [ ] 接入 yolo 来辅助 crop
 
 ## Run on a Robot
 To run the grasp generator with a robot, please use our ROS implementation for Baxter robot. It is available at: https://github.com/skumra/baxter-pnp

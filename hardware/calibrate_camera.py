@@ -19,6 +19,7 @@ class Calibration:
                  checkerboard_offset_from_tool,
                  workspace_limits
                  ):
+        # checkerboard_offset_from_tool 从机器人工具坐标系到棋盘格中心的偏移量。这个偏移量允许系统考虑到如果棋盘格不是直接附着在机器人的末端执行器上时的情况
         self.calib_grid_step = calib_grid_step
         self.checkerboard_offset_from_tool = checkerboard_offset_from_tool
 
@@ -32,7 +33,7 @@ class Calibration:
         self.observed_pix = []
         self.camera2world = np.eye(4)
 
-        homedir = os.path.join(os.path.expanduser('~'), "grasp-comms")
+        homedir = os.path.join(os.path.expanduser('~'), "robotic-grasping/realsensed435i")
         self.move_completed = os.path.join(homedir, "move_completed.npy")
         self.tool_position = os.path.join(homedir, "tool_position.npy")
 
@@ -91,14 +92,14 @@ class Calibration:
         :return calibration grid points
         """
         gridspace_x = np.linspace(self.workspace_limits[0][0], self.workspace_limits[0][1],
-                                  1 + (self.workspace_limits[0][1] - self.workspace_limits[0][
-                                      0]) / self.calib_grid_step)
+                                  int(1 + (self.workspace_limits[0][1] - self.workspace_limits[0][
+                                      0]) / self.calib_grid_step))
         gridspace_y = np.linspace(self.workspace_limits[1][0], self.workspace_limits[1][1],
-                                  1 + (self.workspace_limits[1][1] - self.workspace_limits[1][
-                                      0]) / self.calib_grid_step)
+                                  int(1 + (self.workspace_limits[1][1] - self.workspace_limits[1][
+                                      0]) / self.calib_grid_step))
         gridspace_z = np.linspace(self.workspace_limits[2][0], self.workspace_limits[2][1],
-                                  1 + (self.workspace_limits[2][1] - self.workspace_limits[2][
-                                      0]) / self.calib_grid_step)
+                                  int(1 + (self.workspace_limits[2][1] - self.workspace_limits[2][
+                                      0]) / self.calib_grid_step))
         calib_grid_x, calib_grid_y, calib_grid_z = np.meshgrid(gridspace_x, gridspace_y, gridspace_z)
         num_calib_grid_pts = calib_grid_x.shape[0] * calib_grid_x.shape[1] * calib_grid_x.shape[2]
         calib_grid_x.shape = (num_calib_grid_pts, 1)
@@ -122,8 +123,8 @@ class Calibration:
             logging.info('Requesting move to tool position: ', tool_position)
             np.save(self.tool_position, tool_position)
             np.save(self.move_completed, 0)
-            while not np.load(self.move_completed):
-                time.sleep(0.1)
+            # while not np.load(self.move_completed):
+            #     time.sleep(0.1)
             # Wait for robot to be stable
             time.sleep(2)
 

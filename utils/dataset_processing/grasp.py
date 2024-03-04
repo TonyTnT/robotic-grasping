@@ -421,6 +421,10 @@ class Grasp:
             self.center[1] * scale, self.center[0] * scale, -1 * self.angle * 180 / np.pi, self.length * scale,
             self.width * scale)
 
+    def __str__(self):
+        return 'Center at {}; Rotate angle with {}; Width: {}; Length: {}'.format(self.center, self.angle, self.width, self.length)
+        # return r'{self.center}, {self.angle}, {self.width}, {self.length}'
+
 
 def detect_grasps(q_img, ang_img, width_img=None, no_grasps=1):
     """
